@@ -5,15 +5,15 @@ class Form{
         this.button = createButton('Play');   
     }
     display(){
-     this.title.html("TOTALLY RANDOM OBSTACLES");
-     this.title.position(displayWidth/6,10);
+     this.title.html("STAR SURVIVAL");
+     this.title.position(windowWidth/3.5,10);
      this.title.style('font-size', '70px');
      this.title.style('color', 'lime');
-     this.input.position(displayWidth/2.4,500);
+     this.input.position(windowWidth/3,500);
      this.input.style('width', '200px');
      this.input.style('height', '20px');
      this.input.style('background', 'orange');
-     this.button.position(displayWidth/2.4,600);
+     this.button.position(windowWidth/3,600);
      this.button.style('width', '200px');
      this.button.style('height', '100px');
      this.button.style('background', 'orange');

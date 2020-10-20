@@ -13,7 +13,7 @@ var detonationTime = 100;
 var safeStart, safeTime = 100;
 var soil, star;
 var score = 0, score1;
-var restartbutton;
+var restartbutton, whooshSound, lavaSound;
 
 function preload(){
   upimg = loadImage("up.png");
@@ -25,6 +25,9 @@ function preload(){
   safeimg = loadImage("safe.png");
   soil = loadImage("bg.jpeg");
   star = loadImage("star.png");
+
+  whooshSound = loadSound("whoosh.mp3");
+  lavaSound = loadSound("FastLava.mp3");
 }
 
 function setup(){
@@ -44,6 +47,11 @@ function setup(){
 
   edgeTop = createSprite(900,300,1800,20);
   edgeTop.visible = false;
+
+  restartbutton = createButton("Play Again");
+  restartbutton.position(900,600);
+  restartbutton.hide();
+
 }
 
 function draw(){
@@ -55,23 +63,17 @@ function draw(){
   text(mouseX+", "+mouseY,mouseX,mouseY);
   textAlign(CENTER);
   textSize(36);
+  fill("lime");
 
-  if(player.isTouching(healGroup)){
-    if(health < 171){
-      health += 30;
-    }
-    else if(health >= 171){
-      health = 200;
-    }
-    healGroup.destroyEach();
+  if(stage != 0){
+    text("Score: "+score1,400,100);
   }
 
   if(stage == 1){
     player.visible = true;
-    fill("lime");
-    text("Hello "+playerName+"! Use WASD to Move the Player!",900,250);
+    text("Hello "+playerName+"! Use the WASD keys to Move the Star!",900,250);
     text("Health = "+health,900,125);
-    text("Score: "+score1,400,100);
+
     countFrames += 1;
     score += 0.25;
     score1 = Math.round(score);
@@ -80,28 +82,48 @@ function draw(){
       stage = 2;
     }
 
+    if(player.isTouching(healGroup)){
+      if(health < 171){
+        health += 30;
+      }
+      else if(health >= 171){
+        health = 200;
+      }
+      healGroup.destroyEach();
+    }
+
+    if(lavastart == 1){
+      detonationTime -= 1;
+  
+      if(detonationTime == 0){
+        lavastart = 0;
+        detonationTime = 100;
+      }
+    }
+
     enemies();
     friendlies();
   }
 
-  if(stage == 2){
+  else if(stage == 2){
+    missileGroup.destroyEach();
+    healGroup.destroyEach();
+    lavaGroup.destroyEach();
+    safeGroup.destroyEach();
+
     fill("lime");
     textSize(100);
     text("GAME OVER",900,400);
     player.visible = false;
     
-    restartbutton = createButton();
-    restartbutton.position(900,600);
-    restartbutton.mousePressed(stage = 1);
-  }
-
-  if(lavastart == 1){
-    detonationTime -= 1;
-
-    if(detonationTime == 0){
-      lavastart = 0;
-      detonationTime = 100;
-    }
+    restartbutton.show();
+    restartbutton.mousePressed(() => {
+       score = 0;
+       health = 200;
+       countFrames = 0;
+       restartbutton.hide();
+       stage = 1;
+    })
   }
 
   player.bounceOff(edges[0]);
@@ -147,6 +169,7 @@ function enemies(){
   if(countFrames % 135 == 0 && countFrames > 135){
 
       var missilestart = Math.round(random(1,4));
+      whooshSound.play();
       switch(missilestart){
 
       case 1: missiletop = createSprite(random(500,1300),360,20,50);
@@ -187,13 +210,8 @@ function enemies(){
       lavastart = 1;
       lavaGroup.add(lava)
       lava.addImage(lavaimg);
+      lavaSound.play();
     }
-    
-  if(countFrames % 550 == 0 && countFrames != 0){
-    safezone = createSprite(random(500,1300),random(500,700),70,70);
-    safeGroup.add(safezone);
-    safezone.addImage(safeimg);
-  } 
 
   if(missileGroup.isTouching(player)){
     health -= 40;
